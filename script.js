@@ -33,7 +33,19 @@ const displayController = (() => {
         message.textContent = `Player ${playersMark}'s turn`;
     };
 
-    return {gameMove, displayMsg};
+    const resetDisplay = () => {
+        fieldEl.forEach((field) => {
+            field.textContent = gameBoard.boardArr[field.dataset.index];
+        })
+    }
+
+    restartBtn.addEventListener("click", () => {
+        gameController.resetBoardArr();
+        displayController.resetDisplay();
+        message.textContent = "Player X's turn"
+    });
+
+    return {gameMove, displayMsg, resetDisplay};
 })();
 
 const gameController = (() => {
@@ -50,11 +62,17 @@ const gameController = (() => {
             gameBoard.updateBoardArr(fieldIndex, playerX.getMark());
             displayController.displayMsg(playerO.getMark());
         }
-
         round++;
     }
 
-    return {playRound};
+    const resetBoardArr = () => {
+        for ( i = 0; i < gameBoard.boardArr.length; i++ ) {
+            gameBoard.boardArr[i] = "";
+        };
+        round = 1;
+    }
+
+    return {playRound, resetBoardArr};
 })();
 
 
