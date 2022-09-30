@@ -5,12 +5,13 @@ const player = (mark) => {
 };
 
 const gameBoard = (() => {
-    const board = ["", "", "", "", "", "", "", "", ""];
-    const updateBoard = (fieldIndex, mark) => {
-        board[fieldIndex] = mark;
+    const boardArr = ["", "", "", "", "", "", "", "", ""];
+
+    const updateBoardArr = (fieldIndex, mark) => {
+        boardArr[fieldIndex] = mark;
     }
 
-    return {board, updateBoard};
+    return {boardArr, updateBoardArr};
 })();
 
 const displayController = (() => {
@@ -18,13 +19,21 @@ const displayController = (() => {
     const fieldEl = document.querySelectorAll(".gameboard-field");
     const restartBtn = document.querySelector(".restart-btn");
 
-    fieldEl.forEach((field) => {
-        field.addEventListener("click", () => {
-            fieldIndex = field.dataset.index;
-            gameController.playRound(fieldIndex);
-            field.textContent = gameBoard.board[fieldIndex];
-        });
-    })
+    const gameMove = () => {
+        fieldEl.forEach((field) => {
+            field.addEventListener("click", () => {
+                fieldIndex = field.dataset.index;
+                gameController.playRound(fieldIndex);
+                field.textContent = gameBoard.boardArr[fieldIndex];
+            });
+        })
+    }
+
+    const displayMsg = (playersMark) => {
+        message.textContent = `Player ${playersMark}'s turn`;
+    };
+
+    return {gameMove, displayMsg};
 })();
 
 const gameController = (() => {
@@ -33,7 +42,15 @@ const gameController = (() => {
     let round = 1;
 
     const playRound = (fieldIndex) => {
-        (round % 2 === 0) ? gameBoard.updateBoard(fieldIndex, playerO.getMark()) : gameBoard.updateBoard(fieldIndex, playerX.getMark());
+        if (round % 2 === 0) {
+            gameBoard.updateBoardArr(fieldIndex, playerO.getMark());
+            displayController.displayMsg(playerX.getMark());
+
+        } else {
+            gameBoard.updateBoardArr(fieldIndex, playerX.getMark());
+            displayController.displayMsg(playerO.getMark());
+        }
+
         round++;
     }
 
@@ -41,12 +58,4 @@ const gameController = (() => {
 })();
 
 
-
-// gameBoard.board.splice(fieldIndex, 1, playerX.getMark());
-// console.log(gameBoard.board);
-// fieldIndex.textContent = gameBoard.board[fieldIndex];
-// round++;
-
-// const updateBoard = (fieldIndex, player) => {
-//     return update = () => gameBoard.board.splice(fieldIndex, 1, player);
-// };
+displayController.gameMove();
