@@ -1,7 +1,9 @@
 :root {
     --white: #ffffff;
-    --dark-grey: #808080;
+    --black: #000000;
+    --blue: #8bb9f2;
     --light-grey: #eaeaea;
+    --orange: #ffa500;
     --hover: #d9d8d8;
 }
 
@@ -14,7 +16,7 @@ html {
 header {
     display: flex;
     justify-content: center;
-    background: var(--dark-grey);
+    background: var(--blue);
     color: var(--white);
     font-size: 3rem;
     margin-top: 1.5rem;
@@ -26,8 +28,9 @@ header {
 }
 
 .message {
-    font-size: 3.2rem;
+    font-size: 4rem;
     margin-top: 3rem;
+    margin-bottom: 1rem;
     text-align: center;
 }
 
@@ -43,7 +46,19 @@ header {
 }
 
 .gameboard-field {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 6rem;
     border: 1px solid black;
+}
+
+.gameboard-field[data-state="PlayerX"] {
+    color: var(--orange);
+}
+
+.gameboard-field[data-state="PlayerO"] {
+    color: var(--black);
 }
 
 .gameboard-field:hover {

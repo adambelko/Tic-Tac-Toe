@@ -30,13 +30,24 @@ const displayController = (() => {
             index = field.dataset.index;
             if (gameBoard.boardArr[index] !== "" ) return;
             gameController.playRound(index);
-            field.textContent = gameBoard.boardArr[index];
+            displayController.getMarkerColour(field, index);
         });
     });
 
     const displayMsg = (playersMark) => {
         message.textContent = `Player ${playersMark}'s turn`;
     };
+
+    const getMarkerColour = (field, index) => {
+        if (gameBoard.boardArr[index] === "X") {
+            field.dataset.state = "PlayerX";
+            field.textContent = gameBoard.boardArr[index];
+
+        }else {
+            field.dataset.state = "PlayerO";
+            field.textContent = gameBoard.boardArr[index];
+        }
+    }
 
     const displayWinner = (winner) => {
         if (winner === "") return message.textContent = "It's a tie! Hit restart button to play again";
@@ -55,7 +66,7 @@ const displayController = (() => {
         message.textContent = "Player X's turn";
     });
 
-    return {displayMsg, displayWinner, resetDisplay};
+    return {displayMsg, getMarkerColour, displayWinner, resetDisplay};
 })();
 
 const gameController = (() => {
