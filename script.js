@@ -1,17 +1,23 @@
 
-const player = (mark) => {
-    getMark = () => mark;
+const player = (marker) => {
+    getMark = () => marker;
     return {getMark};
 };
 
 const gameBoard = (() => {
     const boardArr = ["", "", "", "", "", "", "", "", ""];
 
-    const updateBoardArr = (fieldIndex, mark) => {
-        boardArr[fieldIndex] = mark;
+    const updateBoardArr = (index, marker) => {
+        boardArr[index] = marker;
+    };
+
+    const reset = () => {
+        for ( i = 0; i < gameBoard.boardArr.length; i++ ) {
+            gameBoard.boardArr[i] = "";
+        };
     }
 
-    return {boardArr, updateBoardArr};
+    return {boardArr, updateBoardArr, reset};
 })();
 
 const displayController = (() => {
@@ -19,33 +25,37 @@ const displayController = (() => {
     const fieldEl = document.querySelectorAll(".gameboard-field");
     const restartBtn = document.querySelector(".restart-btn");
 
-    const gameMove = () => {
-        fieldEl.forEach((field) => {
-            field.addEventListener("click", () => {
-                fieldIndex = field.dataset.index;
-                gameController.playRound(fieldIndex);
-                field.textContent = gameBoard.boardArr[fieldIndex];
-            });
-        })
-    }
+    fieldEl.forEach((field) => {
+        field.addEventListener("click", () => {
+            index = field.dataset.index;
+            if (gameBoard.boardArr[index] !== "" ) return;
+            gameController.playRound(index);
+            field.textContent = gameBoard.boardArr[index];
+        });
+    });
 
     const displayMsg = (playersMark) => {
         message.textContent = `Player ${playersMark}'s turn`;
     };
 
+    const displayWinner = (winner) => {
+        if (winner === "") return message.textContent = "It's a tie! Hit restart button to play again";
+        message.textContent = `Woohoo! Player ${winner} just win!`;
+    }
+
     const resetDisplay = () => {
         fieldEl.forEach((field) => {
             field.textContent = gameBoard.boardArr[field.dataset.index];
         })
-    }
+    };
 
     restartBtn.addEventListener("click", () => {
-        gameController.resetBoardArr();
+        gameController.resetGame();
         displayController.resetDisplay();
-        message.textContent = "Player X's turn"
+        message.textContent = "Player X's turn";
     });
 
-    return {gameMove, displayMsg, resetDisplay};
+    return {displayMsg, displayWinner, resetDisplay};
 })();
 
 const gameController = (() => {
@@ -53,27 +63,48 @@ const gameController = (() => {
     const playerO = player("O");
     let round = 1;
 
-    const playRound = (fieldIndex) => {
+    const playRound = (index) => {
         if (round % 2 === 0) {
-            gameBoard.updateBoardArr(fieldIndex, playerO.getMark());
+            gameBoard.updateBoardArr(index, playerO.getMark());
             displayController.displayMsg(playerX.getMark());
 
         } else {
-            gameBoard.updateBoardArr(fieldIndex, playerX.getMark());
+            gameBoard.updateBoardArr(index, playerX.getMark());
             displayController.displayMsg(playerO.getMark());
         }
         round++;
-    }
+        gameController.checkForWinner();
+    };
 
-    const resetBoardArr = () => {
-        for ( i = 0; i < gameBoard.boardArr.length; i++ ) {
-            gameBoard.boardArr[i] = "";
-        };
+    const resetGame = () => {
+        gameBoard.reset();
         round = 1;
-    }
+    };
 
-    return {playRound, resetBoardArr};
+    const checkForWinner = () => {
+        const winCombinations = [
+            [0, 1, 2],
+            [0, 3, 6],
+            [0, 4, 8],
+            [2, 5, 8],
+            [6, 7, 8],
+            [3, 4, 5],
+            [6, 4, 2],
+            [1, 4, 7]
+        ];
+
+        winCombinations.forEach((el) => {
+            if (gameBoard.boardArr[el[0]] === "X" && gameBoard.boardArr[el[1]] === "X" && gameBoard.boardArr[el[2]] === "X") {
+                displayController.displayWinner("X");
+            
+            } else if (gameBoard.boardArr[el[0]] === "O" && gameBoard.boardArr[el[1]] === "O" && gameBoard.boardArr[el[2]] === "O") {
+                displayController.displayWinner("O");
+
+            } else if (round === 10) {
+                displayController.displayWinner("");
+            }
+        })
+    };
+
+    return {playRound, resetGame, checkForWinner};
 })();
-
-
-displayController.gameMove();
