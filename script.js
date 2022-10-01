@@ -47,7 +47,7 @@ const displayController = (() => {
             field.dataset.state = "PlayerO";
             field.textContent = gameBoard.boardArr[index];
         }
-    }
+    };
 
     const displayWinner = (winner) => {
         if (winner === "") return message.textContent = "It's a tie! Hit restart button to play again";
@@ -73,8 +73,10 @@ const gameController = (() => {
     const playerX = player("X");
     const playerO = player("O");
     let round = 1;
+    let winner = false;
 
     const playRound = (index) => {
+        if (winner === true) return;
         if (round % 2 === 0) {
             gameBoard.updateBoardArr(index, playerO.getMark());
             displayController.displayMsg(playerX.getMark());
@@ -90,6 +92,7 @@ const gameController = (() => {
     const resetGame = () => {
         gameBoard.reset();
         round = 1;
+        winner = false;
     };
 
     const checkForWinner = () => {
@@ -106,10 +109,12 @@ const gameController = (() => {
 
         winCombinations.forEach((el) => {
             if (gameBoard.boardArr[el[0]] === "X" && gameBoard.boardArr[el[1]] === "X" && gameBoard.boardArr[el[2]] === "X") {
-                displayController.displayWinner("X");
+                displayController.displayWinner(playerX.getMark());
+                winner = true;
             
             } else if (gameBoard.boardArr[el[0]] === "O" && gameBoard.boardArr[el[1]] === "O" && gameBoard.boardArr[el[2]] === "O") {
-                displayController.displayWinner("O");
+                displayController.displayWinner(playerO.getMark());
+                winner = true;
 
             } else if (round === 10) {
                 displayController.displayWinner("");
