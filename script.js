@@ -1,23 +1,22 @@
-
 const player = (marker) => {
     getMark = () => marker;
     return {getMark};
 };
 
 const gameBoard = (() => {
-    const boardArr = ["", "", "", "", "", "", "", "", ""];
+    const board = ["", "", "", "", "", "", "", "", ""];
 
-    const updateBoardArr = (index, marker) => {
-        boardArr[index] = marker;
+    const updateBoard = (index, marker) => {
+        board[index] = marker;
     };
 
-    const reset = () => {
-        for ( i = 0; i < gameBoard.boardArr.length; i++ ) {
-            gameBoard.boardArr[i] = "";
-        };
-    }
+    const resetBoard = () => {
+        for (i = 0; i < gameBoard.board.length; i++) {
+            gameBoard.board[i] = "";
+        }
+    };
 
-    return {boardArr, updateBoardArr, reset};
+    return {board, updateBoard, resetBoard};
 })();
 
 const displayController = (() => {
@@ -28,9 +27,9 @@ const displayController = (() => {
     fieldEl.forEach((field) => {
         field.addEventListener("click", () => {
             index = field.dataset.index;
-            if (gameBoard.boardArr[index] !== "" ) return;
+            if (gameBoard.board[index] !== "") return;
             gameController.playRound(index);
-            displayController.getMarkerColour(field, index);
+            displayController.renderMarker(field, index);
         });
     });
 
@@ -38,35 +37,31 @@ const displayController = (() => {
         message.textContent = `Player ${playersMark}'s turn`;
     };
 
-    const getMarkerColour = (field, index) => {
-        if (gameBoard.boardArr[index] === "X") {
+    const renderMarker = (field, index) => {
+        if (gameBoard.board[index] === "X") {
             field.dataset.state = "PlayerX";
-            field.textContent = gameBoard.boardArr[index];
+            field.textContent = gameBoard.board[index];
 
-        }else {
+        } else {
             field.dataset.state = "PlayerO";
-            field.textContent = gameBoard.boardArr[index];
+            field.textContent = gameBoard.board[index];
         }
     };
 
     const displayWinner = (winner) => {
-        if (winner === "") return message.textContent = "It's a tie! Hit restart button to play again";
+        if (winner === "") return message.textContent = 
+        "It's a tie! Hit restart button to play again";
         message.textContent = `Woohoo! Player ${winner} just win!`;
     }
 
-    const resetDisplay = () => {
-        fieldEl.forEach((field) => {
-            field.textContent = gameBoard.boardArr[field.dataset.index];
-        })
+    restartBtn.addEventListener("click", () => gameController.resetGame());
+
+    const resetDisplay = (playerX) => {
+        fieldEl.forEach((field) => field.textContent = gameBoard.board[field]);
+        displayController.displayMsg(playerX.getMark());
     };
 
-    restartBtn.addEventListener("click", () => {
-        gameController.resetGame();
-        displayController.resetDisplay();
-        message.textContent = "Player X's turn";
-    });
-
-    return {displayMsg, getMarkerColour, displayWinner, resetDisplay};
+    return {displayMsg, renderMarker, displayWinner, resetDisplay};
 })();
 
 const gameController = (() => {
@@ -78,11 +73,11 @@ const gameController = (() => {
     const playRound = (index) => {
         if (winner === true) return;
         if (round % 2 === 0) {
-            gameBoard.updateBoardArr(index, playerO.getMark());
+            gameBoard.updateBoard(index, playerO.getMark());
             displayController.displayMsg(playerX.getMark());
 
         } else {
-            gameBoard.updateBoardArr(index, playerX.getMark());
+            gameBoard.updateBoard(index, playerX.getMark());
             displayController.displayMsg(playerO.getMark());
         }
         round++;
@@ -90,7 +85,8 @@ const gameController = (() => {
     };
 
     const resetGame = () => {
-        gameBoard.reset();
+        gameBoard.resetBoard();
+        displayController.resetDisplay(playerX);
         round = 1;
         winner = false;
     };
@@ -107,12 +103,14 @@ const gameController = (() => {
             [1, 4, 7]
         ];
 
-        winCombinations.forEach((el) => {
-            if (gameBoard.boardArr[el[0]] === "X" && gameBoard.boardArr[el[1]] === "X" && gameBoard.boardArr[el[2]] === "X") {
+        winCombinations.forEach((combi) => {
+            if (gameBoard.board[combi[0]] === "X" && gameBoard.board[combi[1]] === "X"
+                && gameBoard.board[combi[2]] === "X") { 
                 displayController.displayWinner(playerX.getMark());
                 winner = true;
-            
-            } else if (gameBoard.boardArr[el[0]] === "O" && gameBoard.boardArr[el[1]] === "O" && gameBoard.boardArr[el[2]] === "O") {
+
+            } else if (gameBoard.board[combi[0]] === "O" && gameBoard.board[combi[1]] === "O"
+                && gameBoard.board[combi[2]] === "O") {
                 displayController.displayWinner(playerO.getMark());
                 winner = true;
 
