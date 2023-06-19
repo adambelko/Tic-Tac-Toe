@@ -11,35 +11,33 @@ def display_board(board)
   puts
 end
 
-def get_board_index(board)
+def play(board)
   puts "Insert number from 1 to 9"
   index = gets.chomp
+  index = value_to_index(index)
+  return unless valid_move?(board, index)
 
-  if input_number?(index)
-    index = index.to_i
-    if range_valid?(index)
-      index -= 1
-      insert_marker(board, index)
-    else
-      puts "Invalid number"
-      puts "Insert number from 1 to 9"
-    end
+  insert_marker(board, index)
+end
+
+def valid_move?(board, index)
+  if valid_range?(index + 1) && !position_taken?(board, index - 1)
+    true
   else
-    puts "Not a number"
-    puts "Insert number from 1 to 9"
+    puts "Invalid index"
   end
 end
 
-def input_number?(value)
-  value.to_i.to_s == value
-end
-
-def range_valid?(value)
-  (1..9).include?(value)
+def valid_range?(index)
+  (1..9).include?(index)
 end
 
 def position_taken?(board, index)
-  board[index] == " "
+  board[index] == "X" || board[index] == "Y"
+end
+
+def value_to_index(value)
+  value.to_i - 1
 end
 
 def insert_marker(board, index)
@@ -47,4 +45,4 @@ def insert_marker(board, index)
   display_board(board)
 end
 
-get_board_index(board)
+play(board)
