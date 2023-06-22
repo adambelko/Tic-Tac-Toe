@@ -1,102 +1,111 @@
-board = [" ", " ", " ", " ", " ", " ", " ", " ", " "]
+class Board
+  WIN_COMBINATIONS = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+  attr_accessor :board
 
-def display_board(board)
-  puts
-  puts " #{board[0]} | #{board[1]} | #{board[2]}"
-  puts "-----------"
-  puts " #{board[3]} | #{board[4]} | #{board[5]}"
-  puts "-----------"
-  puts " #{board[6]} | #{board[7]} | #{board[8]}"
-  puts
-end
+  def initialize
+    @board = Array.new(9, " ")
+  end
 
-def play(board)
-  turn(board) until game_over?(board)
+  def display
+    puts
+    puts " #{board[0]} | #{board[1]} | #{board[2]}"
+    puts "-----------"
+    puts " #{board[3]} | #{board[4]} | #{board[5]}"
+    puts "-----------"
+    puts " #{board[6]} | #{board[7]} | #{board[8]}"
+    puts
+  end
 
-  winner = won?(board)
-  if winner
-    puts "Player #{winner} wins!"
-  else
-    puts "It's a draw!"
+  def update_board(position, marker)
+    board[position] = marker
+  end
+
+  def valid_move?(position)
+    unless valid_range?(position + 1)
+      puts "Invalid number / Not a number"
+      return false
+    end
+
+    if position_taken?(position)
+      puts "Position already taken!"
+      return false
+    end
+
+    true
+  end
+
+  def valid_range?(position)
+    (1..9).include?(position)
+  end
+
+  def position_taken?(position)
+    board[position] == "X" || board[position] == "O"
+  end
+
+  def full?
+    board.all? { |position| %w[X O].include?(position) }
+  end
+
+  def won?
+    WIN_COMBINATIONS.each do |combination|
+      if board[combination[0]] == "X" && board[combination[1]] == "X" && board[combination[2]] == "X"
+        return "X"
+      elsif board[combination[0]] == "O" && board[combination[1]] == "O" && board[combination[2]] == "O"
+        return "O"
+      end
+    end
+    false
+  end
+
+  def draw?
+    full? && !won?
   end
 end
 
-def turn(board)
-  counter = 1
+class Game
+  attr_accessor :board, :current_player
 
-  until game_over?(board)
-    index = input_to_index
-    index = input_to_index until valid_move?(board, index)
+  def initialize
+    @board = Board.new
+    @current_player = "X"
+  end
 
-    if counter.odd?
-      insert_marker("X", board, index)
+  def play
+    until game_over?
+      board.display
+      position = input_to_position
+      position = input_to_position until valid_move?(position)
+      board.update_board(position, current_player)
+      switch_players
+    end
+
+    board.display
+    if board.won?
+      puts "Player #{board.won?} wins!"
     else
-      insert_marker("O", board, index)
-    end
-    display_board(board)
-    counter += 1
-  end
-end
-
-def game_over?(board)
-  won?(board) || draw?(board)
-end
-
-def won?(board)
-  win_combinations = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
-
-  win_combinations.each do |combination|
-    if board[combination[0]] == "X" && board[combination[1]] == "X" && board[combination[2]] == "X"
-      return "X"
-    elsif board[combination[0]] == "O" && board[combination[1]] == "O" && board[combination[2]] == "O"
-      return "O"
+      puts "It's a draw!"
     end
   end
-  false
-end
 
-def full?(board)
-  board.all? { |position| %w[X O].include?(position) }
-end
+  private
 
-def draw?(board)
-  full?(board) && !won?(board)
-end
-
-def valid_move?(board, index)
-  unless valid_range?(index + 1)
-    puts "Invalid number / Not a number"
-    return false
+  def valid_move?(position)
+    board.valid_move?(position)
   end
 
-  if position_taken?(board, index)
-    puts "Position already taken!"
-    return false
+  def switch_players
+    self.current_player = current_player == "X" ? "O" : "X"
   end
 
-  true
+  def game_over?
+    board.won? || board.draw?
+  end
+
+  def input_to_position
+    puts "Insert number from 1 to 9"
+    value = gets.chomp.to_i
+    value - 1
+  end
 end
 
-def input_to_index
-  puts "Insert number from 1 to 9"
-  value = gets.chomp
-  value_to_index(value)
-end
-
-def value_to_index(value)
-  value.to_i - 1
-end
-
-def valid_range?(index)
-  (1..9).include?(index)
-end
-
-def position_taken?(board, index)
-  board[index] == "X" || board[index] == "O"
-end
-
-def insert_marker(player, board, index)
-  board[index] = player
-end
-
-play(board)
+Game.new.play
